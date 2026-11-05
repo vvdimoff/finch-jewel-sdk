@@ -1,0 +1,18 @@
+[package]
+name = "finch-jewel-sdk"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Ruby-FFI glue for Finch per-plugin crown-jewels (magnus). Wrapper only: no keys, no product code."
+repository = "https://github.com/vvdimoff/finch-jewel-sdk"
+
+[lib]
+name = "finch_jewel_sdk"
+
+[dependencies]
+# Re-exported so a plugin's jewel crate links the SAME magnus version as the SDK.
+magnus = "0.7"
+
+[build-dependencies]
+# magnus/rb-sys need the ruby rbconfig at build; this wires it up (pure-cargo build).
+rb-sys-env = "0.2"
