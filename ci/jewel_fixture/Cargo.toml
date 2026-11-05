@@ -17,6 +17,10 @@ crate-type = ["cdylib"]
 
 [dependencies]
 finch-jewel-sdk = { path = "../.." }
+# magnus потрібен ПРЯМОЮ залежністю: макроси #[magnus::init]/function! генерують код
+# зі шляхами `magnus::…`, тож ім'я має резолвитись у крейті перлини. Та сама версія, що
+# ре-експортує SDK → cargo зводить до однієї копії.
+magnus = "0.7"
 
 [build-dependencies]
 rb-sys-env = "0.2"

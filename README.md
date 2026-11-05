@@ -23,6 +23,9 @@ crate-type = ["cdylib"]
 
 [dependencies]
 finch-jewel-sdk = { git = "https://github.com/vvdimoff/finch-jewel-sdk" }
+# magnus must be a DIRECT dep: #[magnus::init]/function! expand to `magnus::…` paths,
+# so the name must resolve in your crate. Same version the SDK re-exports → one copy.
+magnus = "0.7"
 # your own algorithm deps (serde, rayon, roxmltree, …)
 
 [build-dependencies]
