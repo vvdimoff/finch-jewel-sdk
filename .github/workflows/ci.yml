@@ -16,6 +16,14 @@ jobs:
         with:
           ruby-version: "3.2"
 
+      # rb-sys-env reads the RUBY_VERSION env var in build.rs; ruby/setup-ruby doesn't
+      # export it. Also put the ruby libdir on LD_LIBRARY_PATH so a test binary that links
+      # libruby can start.
+      - name: Ruby env for rb-sys / magnus
+        run: |
+          echo "RUBY_VERSION=$(ruby -e 'print RUBY_VERSION')" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$(ruby -e 'print RbConfig::CONFIG[%q{libdir}]')${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
+
       - uses: dtolnay/rust-toolchain@stable
 
       - name: Cache cargo
