@@ -1,2 +1,8 @@
 /target
 Cargo.lock
+# fixture build artifacts
+/ci/jewel_fixture/target
+/ci/jewel_fixture/Cargo.lock
+/ci/jewel_fixture/*.so
+/ci/jewel_fixture/*.dll
+/ci/jewel_fixture/*.bundle

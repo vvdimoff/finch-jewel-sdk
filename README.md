@@ -31,11 +31,13 @@ rb-sys-env = "0.2"
 
 ```rust
 // <slug>/jewels/src/lib.rs
-use finch_jewel_sdk::magnus::{self, function, Error, RString, Ruby};
+// export! fully-qualifies magnus internally, so a jewel only imports the types its
+// own fn signatures name.
+use finch_jewel_sdk::magnus::{Error, RString, Ruby};
 
 fn detect_batch(ruby: &Ruby, packed: RString) -> Result<RString, Error> {
     // … pure algorithm; bulk numbers via finch_jewel_sdk::{pack_f64, unpack_f64} …
-    Ok(RString::from_slice(&[]))
+    Ok(ruby.str_from_slice(&[]))
 }
 
 finch_jewel_sdk::export! {

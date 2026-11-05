@@ -42,7 +42,8 @@ pub fn jewel_module(ruby: &magnus::Ruby, ns: &str) -> Result<magnus::RModule, ma
     use magnus::Module;
     assert!(!ns.is_empty(), "finch-jewel-sdk: FINCH_JEWEL_NS must be non-empty");
     let finch = ruby.define_module("Finch")?;
-    finch.define_module(&format!("Jewels_{ns}"))
+    // magnus 0.7: IntoId не реалізований для &String — передаємо String за значенням.
+    finch.define_module(format!("Jewels_{ns}"))
 }
 
 /// Expose Rust functions as `Finch::Jewels_<ns>.<ruby_name>`.
@@ -52,7 +53,8 @@ pub fn jewel_module(ruby: &magnus::Ruby, ns: &str) -> Result<magnus::RModule, ma
 /// `"<ruby_name>" => <rust_fn>, <arity>;` (magnus needs the arity).
 ///
 /// ```ignore
-/// use finch_jewel_sdk::magnus::{self, function, Error, RString, Ruby};
+/// // A jewel imports only the types its own signatures name; export! fully-qualifies magnus.
+/// use finch_jewel_sdk::magnus::{Error, RString, Ruby};
 ///
 /// fn detect_batch(ruby: &Ruby, packed: RString) -> Result<RString, Error> { /* … */ }
 ///
@@ -62,10 +64,11 @@ pub fn jewel_module(ruby: &magnus::Ruby, ns: &str) -> Result<magnus::RModule, ma
 /// ```
 #[macro_export]
 macro_rules! export {
-    ( $( $ruby_name:literal => $rust_fn:path , $arity:literal );+ $(;)? ) => {
+    ( $( $ruby_name:literal => $rust_fn:path , $arity:tt );+ $(;)? ) => {
         #[$crate::magnus::init]
         fn __finch_jewel_init(ruby: &$crate::magnus::Ruby) -> ::core::result::Result<(), $crate::magnus::Error> {
-            use $crate::magnus::Module;
+            // Module::define_module + Object::define_singleton_method — обидва трейти потрібні.
+            use $crate::magnus::{Module, Object};
             // env! evaluated HERE, in the plugin crate, at the plugin's build.
             let ns: &str = env!(
                 "FINCH_JEWEL_NS",

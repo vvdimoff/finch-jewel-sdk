@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+    branches: [main, "**"]
+  pull_request:
+
+jobs:
+  sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Ruby headers for magnus/rb-sys (ruby 3.2 = SketchUp 2024/2025/2026).
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.toml') }}
+
+      # Pure helper tests (pack_f64 / unpack_f64).
+      - name: cargo test (SDK)
+        run: cargo test --all-features
+
+      # Build the README export! example (arity 1 and 2) into a loadable .so …
+      - name: Build jewel fixture
+        working-directory: ci/jewel_fixture
+        run: |
+          set -euxo pipefail
+          cargo build --release
+          # magnus emits Init_<crate-name>; Ruby derives the symbol from the .so basename,
+          # which must therefore match the crate name without the linker's "lib" prefix.
+          cp target/release/libfinch_jewels_ci_example.so ./finch_jewels_ci_example.so
+          test -f ./finch_jewels_ci_example.so
+
+      # … then LOAD it in Ruby and call both arities. Compile alone is not proof.
+      - name: Load fixture in Ruby (arity 1 and 2)
+        working-directory: ci/jewel_fixture
+        run: ruby verify.rb

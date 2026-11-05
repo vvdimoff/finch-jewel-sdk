@@ -1,0 +1,22 @@
+# CI fixture — exercises `export!` end-to-end (arity 1 and 2). Built + loaded in Ruby by
+# .github/workflows/ci.yml. Detached workspace so the SDK root stays a lone package.
+[workspace]
+
+[package]
+name = "finch_jewels_ci_example"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+# Fixed ns here (ci_example) → CARGO_CRATE_NAME = finch_jewels_ci_example, so magnus emits
+# Init_finch_jewels_ci_example and the module is Finch::Jewels_ci_example. (Real per-ns CI
+# sets this dynamically via `--crate-name finch_jewels_<ns>`; the fixture fixes it.)
+name = "finch_jewels_ci_example"
+crate-type = ["cdylib"]
+
+[dependencies]
+finch-jewel-sdk = { path = "../.." }
+
+[build-dependencies]
+rb-sys-env = "0.2"
